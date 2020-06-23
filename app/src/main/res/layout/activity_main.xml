@@ -28,13 +28,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/button2"
-        android:text="Add Name"
+        android:text="Add "
         android:layout_below="@+id/editText3"
         android:layout_alignRight="@+id/textView1"
         android:layout_alignEnd="@+id/textView1"
         android:layout_alignLeft="@+id/textView1"
         android:layout_alignStart="@+id/textView1"
-        android:onClick="onClickAddName"/>
+        android:onClick="onClickAdd"/>
 
     <EditText
         android:layout_width="wrap_content"

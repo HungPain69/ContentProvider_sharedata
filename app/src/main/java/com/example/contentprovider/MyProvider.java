@@ -1,10 +1,12 @@
 package com.example.contentprovider;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
@@ -15,8 +17,17 @@ import androidx.annotation.Nullable;
 import java.util.HashMap;
 
 public class MyProvider extends ContentProvider {
-    static final String PROVIDER_NAME = "com.example.contentprovider.MyProvider";
-    static final String URL = "content://" + PROVIDER_NAME + "/notes";
+    static final String DATABASE_NAME = "DatabaseName";
+    static final String TABLE_NAME = "notes";
+    static final int DATABASE_VERSION = 1;
+    static final String CREATE_DB_TABLE =
+            " CREATE TABLE " + TABLE_NAME +
+                    " (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    " title TEXT NOT NULL, " +
+                    " content TEXT NOT NULL);";
+
+    static final String PROVIDER_NAME = "com.example.cp.MyProvider";
+    static final String URL = "content://" + PROVIDER_NAME +"/"+TABLE_NAME;
     static final Uri CONTENT_URI = Uri.parse(URL);
 
     static final String _ID = "_id";
@@ -31,18 +42,11 @@ public class MyProvider extends ContentProvider {
     static final UriMatcher uriMatcher;
     static{
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        uriMatcher.addURI(PROVIDER_NAME, "students", URI_ALL_ITEMS_CODE );
-        uriMatcher.addURI(PROVIDER_NAME, "students/#", URI_ONE_ITEM_CODE);
+        uriMatcher.addURI(PROVIDER_NAME, TABLE_NAME+"", URI_ALL_ITEMS_CODE );
+        uriMatcher.addURI(PROVIDER_NAME, TABLE_NAME+"/#", URI_ONE_ITEM_CODE);
     }
     private SQLiteDatabase db;
-    static final String DATABASE_NAME = "DatabaseName";
-    static final String TABLE_NAME = "note_table";
-    static final int DATABASE_VERSION = 1;
-    static final String CREATE_DB_TABLE =
-            " CREATE TABLE " + TABLE_NAME +
-                    " (_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    " title TEXT NOT NULL, " +
-                    " content TEXT NOT NULL);";
+
     @Override
     public boolean onCreate() {
         Context context = getContext();
@@ -72,7 +76,21 @@ public class MyProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        return null;
+        /**
+         * Add a new note record
+         */
+        long rowID = db.insert(	TABLE_NAME, null, values);
+
+        /**
+         * If record is added successfully
+         */
+        if (rowID > 0) {
+            Uri _uri = ContentUris.withAppendedId(CONTENT_URI, rowID);
+            getContext().getContentResolver().notifyChange(_uri, null);
+            return _uri;
+        }
+
+        throw new SQLException("Failed to add a record into " + uri);
     }
 
     @Override
