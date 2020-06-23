@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.contentprovider">
+    <permission
+        android:name="com.android.example.cp.WRITE_DATABASE"
+        android:label="Write Database"
+        android:protectionLevel="normal" />
+
+    <permission
+        android:name="com.android.example.cp.READ_DATABASE"
+        android:label="Read Database"
+        android:protectionLevel="normal" />
 
     <application
         android:allowBackup="true"
@@ -19,6 +28,10 @@
         <provider
             android:name=".MyProvider"
             android:authorities="com.example.cp.MyProvider"
+            android:enabled="true"
+            android:exported="true"
+            android:readPermission="com.example.cp.READ_DATABASE"
+            android:writePermission="com.example.cp.WRITE_DATABASE"
            />
     </application>
 
